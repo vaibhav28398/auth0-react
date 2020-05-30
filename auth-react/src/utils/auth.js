@@ -9,6 +9,8 @@ export default class Auth{
         responseType:'token id_token',
         scope:'openid profile email'
     })
+
+    userProfile={}
     login=()=>{
         this.auth0.authorize()
     }
@@ -24,7 +26,8 @@ export default class Auth{
 
                 let expiresAt=JSON.stringify((authResult.expiresIn*1000+new Date().getTime()))
                 localStorage.setItem('expiresAt',expiresAt);
-                setTimeout(()=>{history.replace('/authcheck')},200);
+                this.getProfile();
+                setTimeout(()=>{history.replace('/authcheck')},2000);
             }
             else{
                 console.log(err); 
@@ -32,11 +35,40 @@ export default class Auth{
         })
     }
 
+    getAccessToken=()=>{
+        if(localStorage.getItem('access_token'))
+        {
+            console.log("Token is there")
+            const accessToken=localStorage.getItem('access_token');
+            return accessToken;
+        }
+        else
+        return null;
+    }
+
+    getProfile=()=>{
+        let accessToken=this.getAccessToken();
+        if(accessToken)
+        {
+            this.auth0.client.userInfo(accessToken,(err,profile)=>{
+                if(profile){
+                    console.log("Profile is there");
+                    this.userProfile={profile};
+                }
+                else{
+                    console.log(err);
+                    console.log("Profile not there")
+                }
+                
+            })
+        }
+    }
+
     logout=()=>{
         localStorage.removeItem('access_token');
         localStorage.removeItem('id_token');
         localStorage.removeItem('expiresAt');
-        
+        setTimeout(()=>{history.replace('/authcheck')},200)
     }
 
     isAuthenticated=()=>{

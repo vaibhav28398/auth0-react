@@ -18,6 +18,9 @@ class Header extends Component{
                 <Link to='/' >
                     Home
                 </Link>
+                <Link to='/profile' >
+                    profile
+                </Link>
                 <Link to='/privateroute' >
                     privateroute
                 </Link>

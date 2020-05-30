@@ -8,7 +8,10 @@ import history from './utils/history'
 import AuthCheck from './utils/AuthCheck';
 import ProtectedRoute from './Functional/protectedroutes';
 import UnauthRedirect from './Functional/unauthredirect';
-import Header from './Containers/header'
+import Header from './Containers/header';
+import Profile from './Containers/profile';
+import {connect} from 'react-redux';
+import * as ACTIONS from './store/actions/actions';
 
 const auth=new Auth();
 
@@ -27,6 +30,19 @@ const PrivateRoute=({component:Component,auth})=>(
     } />
 )
 class Routes extends Component{
+    componentDidMount(){
+        if(auth.isAuthenticated()){
+            this.props.login_success();
+            this.props.add_profile(auth.userProfile)
+            auth.getProfile();
+            setTimeout(()=>{this.props.add_profile(auth.userProfile)},2000)
+        }
+        else{
+            this.props.login_failure();
+            this.props.remove_profile();
+
+        }
+    }
     render(){
         return(
             <div>
@@ -39,6 +55,7 @@ class Routes extends Component{
         <Route path='/authcheck' render={()=><AuthCheck auth={auth}/>}/>
         <Route path='/redirect' component={UnauthRedirect} />
         <PrivateRoute path='/privateroute' auth={auth} component={ProtectedRoute} />
+        <PrivateRoute path='/profile' auth={auth} component={Profile} />
                     </Switch>
                     </div>
                 </Router>
@@ -46,5 +63,14 @@ class Routes extends Component{
         )
     }
 }
+function mapDispatchToProps(dispatch){
+    return{
+        login_success:()=>dispatch(ACTIONS.login_success()),
+        login_failure:()=>dispatch(ACTIONS.login_failure()),
+        add_profile:(profile)=>dispatch(ACTIONS.add_profile(profile)),
+        remove_profile:()=>dispatch(ACTIONS.remove_profile())
 
-export default Routes;
+    }
+}
+
+export default connect(null,mapDispatchToProps)(Routes);
