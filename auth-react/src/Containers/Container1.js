@@ -4,7 +4,7 @@ class Container1 extends Component{
     render(){
         return(
             <div>
-            <button onClick={()=>this.props.auth.login()}>Login</button>
+            
             </div>
         )
     }
